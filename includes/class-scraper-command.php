@@ -636,11 +636,11 @@ class Generic_Scraper_Command {
         // Store full HTML for image extraction
         $data['full_html'] = $html;
         
-        // Check if already exists
-        $existing_id = $this->post_exists_by_source_url($data['source_url']);
+        // Check if already exists (by title — catches duplicates across different sources)
+        $existing_id = $this->post_exists_by_title($data['title']);
         if ($existing_id) {
             $status = get_post_status($existing_id);
-            WP_CLI::debug("Already imported as post ID $existing_id (status: $status)");
+            WP_CLI::debug("Already exists as post ID $existing_id (title: \"{$data['title']}\", status: $status)");
             $this->stats['skipped']++;
             return;
         }
@@ -1370,6 +1370,25 @@ class Generic_Scraper_Command {
             )
         );
         
+        return $post_id ? (int)$post_id : 0;
+    }
+
+    private function post_exists_by_title($title) {
+        global $wpdb;
+
+        $post_id = $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT ID
+                FROM {$wpdb->posts}
+                WHERE post_type = %s
+                AND post_title = %s
+                AND post_status IN ('publish', 'draft', 'pending', 'private')
+                LIMIT 1",
+                $this->config['post_type'],
+                $title
+            )
+        );
+
         return $post_id ? (int)$post_id : 0;
     }
 
