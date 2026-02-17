@@ -13,6 +13,7 @@ Import content from any website into WordPress using XPath selectors.
 - ✅ Category and tag assignment
 - ✅ Duplicate detection
 - ✅ Batch processing
+- ✅ Automatic scheduling via WordPress cron (per-profile)
 - ✅ WP-CLI support
 
 ## Installation
@@ -80,6 +81,9 @@ wp scraper run --profile=your-profile --max-pages=5 --live
 - **Max Pages** - How many pages to scrape
 - **Posts Per Batch** - Limit per run (0 = all)
 - **Fallback Image ID** - Default featured image
+- **Enable Automatic Scraping** - Schedule via WP-Cron
+- **Frequency** - How many times to run per period (1–24)
+- **Period** - Hour, Day, or Week
 
 ## Pagination Formats
 
@@ -177,6 +181,12 @@ For issues and questions:
 GPL v2 or later
 
 ## Changelog
+
+### 2.1.0
+- Built-in WordPress cron scheduling (per-profile, configurable frequency/period)
+- Next Scheduled Run display in admin UI
+- Automatic schedule cleanup on profile deletion and plugin deactivation
+- Debug script for inspecting scheduled events
 
 ### 2.0.0
 - Multiple profile support
