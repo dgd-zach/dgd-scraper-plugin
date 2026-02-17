@@ -1,0 +1,1748 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>DGD Web Scraper - User Documentation</title>
+  <style>
+    /* Modern CSS Reset & Base */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      /* Color Palette - Modern Blues & Grays */
+      --primary: #2563eb;
+      --primary-dark: #1e40af;
+      --primary-light: #dbeafe;
+      --accent: #10b981;
+      --accent-dark: #059669;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --text: #1f2937;
+      --text-light: #6b7280;
+      --bg: #ffffff;
+      --bg-secondary: #f9fafb;
+      --bg-tertiary: #f3f4f6;
+      --border: #e5e7eb;
+      --code-bg: #1f2937;
+      --code-text: #f3f4f6;
+      
+      /* Typography */
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Droid Sans Mono', 'Source Code Pro', monospace;
+      
+      /* Spacing */
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2rem;
+      --space-2xl: 3rem;
+      
+      /* Shadows */
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      
+      /* Border Radius */
+      --radius-sm: 0.25rem;
+      --radius-md: 0.5rem;
+      --radius-lg: 0.75rem;
+      --radius-xl: 1rem;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--text);
+      background: linear-gradient(to bottom, #f9fafb 0%, #ffffff 100%);
+      padding: var(--space-md);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Container */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--bg);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      padding: var(--space-2xl);
+      margin-top: var(--space-xl);
+      margin-bottom: var(--space-2xl);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: var(--space-lg);
+        margin-top: var(--space-md);
+      }
+    }
+
+    /* Typography */
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: var(--space-lg);
+      line-height: 1.2;      
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      align-content: center;
+      
+    }
+
+    h2 {
+      font-size: 1.875rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-top: var(--space-2xl);
+      margin-bottom: var(--space-lg);
+      padding-bottom: var(--space-sm);
+      border-bottom: 3px solid var(--primary-light);
+      position: relative;
+    }
+
+    h2::before {
+      content: '';
+      position: absolute;
+      bottom: -3px;
+      left: 0;
+      width: 60px;
+      height: 3px;
+      background: var(--primary);
+      border-radius: var(--radius-sm);
+    }
+
+    h3 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-top: var(--space-xl);
+      margin-bottom: var(--space-md);
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    h3::before {
+      content: '▸';
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    p {
+      margin-bottom: var(--space-md);
+      color: var(--text);
+    }
+
+    strong {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    hr {
+      border: none;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+      margin: var(--space-2xl) 0;
+    }
+
+    /* Links */
+    a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      border-bottom: 2px solid transparent;
+    }
+
+    a:hover {
+      color: var(--primary-dark);
+      border-bottom-color: var(--primary);
+    }
+
+    /* Lists */
+    ul, ol {
+      margin-bottom: var(--space-md);
+      padding-left: var(--space-xl);
+    }
+
+    li {
+      margin-bottom: var(--space-sm);
+      color: var(--text);
+    }
+
+    /* Table of Contents */
+    #table-of-contents + ol {
+      background: var(--bg-secondary);
+      border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+      padding: var(--space-lg) 40px;
+      border-left: 4px solid var(--primary);
+      margin-bottom: var(--space-xl);
+      box-shadow: var(--shadow-sm);
+    }
+
+    #table-of-contents + ol li {
+      margin-bottom: var(--space-md);
+    }
+
+    /* Code Blocks */
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.875em;
+      padding: 0.2em 0.4em;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-sm);
+      color: var(--danger);
+      font-weight: 500;
+    }
+
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: var(--space-lg);
+      border-radius: var(--radius-lg);
+      overflow-x: auto;
+      margin: var(--space-lg) 0;
+      box-shadow: var(--shadow-md);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    pre code {
+      background: transparent;
+      color: var(--code-text);
+      padding: 0;
+      font-size: 0.875rem;
+      line-height: 1.6;
+    }
+
+    /* Syntax Highlighting */
+    .sourceCode {
+      background: var(--code-bg);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin: var(--space-lg) 0;
+      box-shadow: var(--shadow-md);
+    }
+
+    pre.sourceCode {
+      margin: 0;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    code span.co { color: #6b7280; font-style: italic; } /* Comment */
+    code span.st { color: #10b981; } /* String */
+    code span.kw { color: #8b5cf6; font-weight: 600; } /* Keyword */
+    code span.dv { color: #f59e0b; } /* Decimal */
+    code span.fu { color: #3b82f6; } /* Function */
+    code span.va { color: #ec4899; } /* Variable */
+    code span.op { color: #9ca3af; } /* Operator */
+    code span.at { color: #06b6d4; } /* Attribute */
+
+    /* Badges & Icons */
+    .badge {
+      display: inline-block;
+      padding: 0.25em 0.6em;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      text-transform: uppercase;
+      letter-spacing: 0.025em;
+      margin-left: var(--space-sm);
+    }
+
+    .badge-success {
+      background: var(--accent);
+      color: white;
+    }
+
+    .badge-warning {
+      background: var(--warning);
+      color: white;
+    }
+
+    .badge-info {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* Callout Boxes */
+    .callout {
+      padding: var(--space-lg);
+      border-radius: var(--radius-lg);
+      margin: var(--space-lg) 0;
+      border-left: 4px solid;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .callout-info {
+      background: var(--primary-light);
+      border-color: var(--primary);
+    }
+
+    .callout-success {
+      background: #d1fae5;
+      border-color: var(--accent);
+    }
+
+    .callout-warning {
+      background: #fef3c7;
+      border-color: var(--warning);
+    }
+
+    .callout-danger {
+      background: #fee2e2;
+      border-color: var(--danger);
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: var(--space-lg) 0;
+      background: var(--bg);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+    }
+
+    thead {
+      background: var(--bg-secondary);
+    }
+
+    th {
+      padding: var(--space-md);
+      text-align: left;
+      font-weight: 600;
+      color: var(--text);
+      border-bottom: 2px solid var(--border);
+    }
+
+    td {
+      padding: var(--space-md);
+      border-bottom: 1px solid var(--border);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background: var(--bg-secondary);
+    }
+
+    /* Emoji & Icons */
+    li::marker {
+      color: var(--primary);
+      font-weight: bold;
+    }
+
+    /* Special List Styling */
+    ul.task-list {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    ul.task-list li {
+      padding-left: var(--space-xl);
+      position: relative;
+    }
+
+    ul.task-list li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      body {
+        padding: var(--space-sm);
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+      }
+
+      h3 {
+        font-size: 1.25rem;
+      }
+
+      pre {
+        padding: var(--space-md);
+        font-size: 0.8rem;
+      }
+
+      table {
+        font-size: 0.875rem;
+      }
+
+      th, td {
+        padding: var(--space-sm);
+      }
+    }
+
+    /* Smooth Scrolling */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Selection */
+    ::selection {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+    }
+
+    /* Custom Enhancements */
+    .version-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white !important;
+      padding: 0.5em 1em;
+      border-radius: var(--radius-lg);
+      font-weight: 600;
+      font-size: 0.875rem;
+      box-shadow: var(--shadow-md);
+      margin-left: var(--space-md);
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: var(--space-2xl);
+      padding-top: var(--space-xl);
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--text-light);
+      font-size: 0.875rem;
+    }
+
+    /* Command Examples Enhancement */
+    pre code.sourceCode {
+      display: block;
+    }
+
+    /* Print Styles */
+    @media print {
+      .container {
+        box-shadow: none;
+        max-width: 100%;
+      }
+
+      pre {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 id="generic-web-scraper---user-documentation">DGD Web Scraper<span class="version-badge">v2.1</span></h1>
+
+    <h2 id="table-of-contents">Table of Contents</h2>
+    <ol type="1">
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#installation">Installation</a></li>
+      <li><a href="#basic-usage">Basic Usage</a></li>
+      <li><a href="#managing-profiles">Managing Profiles</a></li>
+      <!-- <li><a href="#command-options">Command Options</a></li> -->
+      <li><a href="#finding-xpath-selectors">Finding XPath Selectors</a></li>
+      <li><a href="#removing-unwanted-elements">Removing Unwanted Elements</a></li>
+      <li><a href="#usage-examples">Usage Examples</a></li>
+      <li><a href="#understanding-the-output">Understanding the Output</a></li>
+      <li><a href="#featured-images">Featured Images</a></li>
+      <li><a href="#troubleshooting">Troubleshooting</a></li>
+      <li><a href="#automatic-scheduling">Automatic Scheduling (WP-Cron)</a></li>
+      <li><a href="#advanced-usage">Advanced Usage</a></li>
+      <li><a href="#legal-compliance">Legal & Compliance</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ol>
+
+    <hr />
+
+    <h2 id="overview">Overview</h2>
+    <p>DGD Web Scraper is a WordPress plugin that provides a flexible WP-CLI command to import content from any website into your WordPress site. It automatically:</p>
+    <ul class="task-list">
+      <li>Manages multiple scraper profiles via admin interface</li>
+      <li>Scrapes content from paginated listing pages</li>
+      <li>Extracts titles, dates, content, and images using XPath</li>
+      <li>Removes unwanted elements (ads, scripts, social buttons) from content</li>
+      <li>Creates WordPress posts or pages with proper formatting</li>
+      <li>Imports images to Media Library or sets via FIFU plugin</li>
+      <li>Can add multiple categories and tags</li>
+      <li>Prevents duplicate imports with intelligent skip detection</li>
+      <li>Handles image validation</li>
+      <li>Preserves <code>&lt;pre&gt;</code> tag formatting</li>
+      <li>Schedules automatic imports via built-in WordPress cron</li>
+      <li>Defaults to dry run mode for safety</li>
+      <li>Supports graceful interruption (Ctrl+C)</li>
+      <li>Sets current user as post author</li>
+      <li>Works with saved admin profiles</li>
+    </ul>
+
+    <hr />
+
+    <h2 id="installation">Installation</h2>
+
+    <h3 id="step-1-install-plugin">Step 1: Install the Plugin</h3>
+    
+    <p><strong>Option A: Via WordPress Admin (Recommended)</strong></p>
+    <ol>
+      <li>Go to <strong>Plugins → Add New → Upload Plugin</strong></li>
+      <li>Click <strong>Choose File</strong> and select <code>dgd-web-scraper.zip</code></li>
+      <li>Click <strong>Install Now</strong></li>
+      <li>Click <strong>Activate Plugin</strong></li>
+    </ol>
+
+    <p><strong>Option B: Via FTP/SSH</strong></p>
+    <ol>
+      <li>Upload the <code>dgd-web-scraper</code> folder to <code>/wp-content/plugins/</code></li>
+      <li>Go to <strong>Plugins</strong> in WordPress admin</li>
+      <li>Find <strong>DGD Web Scraper</strong> and click <strong>Activate</strong></li>
+    </ol>
+
+    <h3 id="step-2-verify-installation">Step 2: Verify Installation</h3>
+    <p>Check if the plugin is working:</p>
+    <ul>
+      <li>Go to <strong>Tools → Scraper Settings</strong> in WordPress admin</li>
+      <li>You should see the profile management interface</li>
+    </ul>
+    
+    <p>Check if WP-CLI command is available:</p>
+    <div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">wp</span> scraper --help</span></code></pre></div>
+
+    <h3 id="step-3-optional-install-fifu-plugin">Step 3: (Optional) Install FIFU Plugin</h3>
+    <p>For external featured images, install the Featured Image from URL (FIFU) plugin:</p>
+    <div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">wp</span> plugin install featured-image-from-url <span class="at">--activate</span></span></code></pre></div>
+    
+    <p>Or via WordPress admin: <strong>Plugins → Add New</strong>, search for "Featured Image from URL"</p>
+
+    <hr />    
+
+    <h2 id="basic-usage">Basic Usage</h2>
+
+    <div class="callout callout-info">
+      <p><strong>📁 Where to Run Commands:</strong> All WP-CLI commands must be run from your <strong>WordPress root directory</strong> (the folder containing <code>wp-config.php</code>), not from <code>wp-content</code> or theme folders.</p>
+      <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="co"># Navigate to WordPress root first</span>
+<span class="bu">cd</span> /path/to/wordpress/
+
+<span class="co"># Verify you're in the right place</span>
+<span class="fu">ls</span> wp-config.php
+
+<span class="co"># Then run scraper commands</span>
+<span class="ex">wp</span> scraper run <span class="at">--profile</span><span class="op">=</span>your-profile</code></pre></div>
+    </div>
+
+    <p><strong>Step 1:</strong> Configure settings in WordPress admin:</p>
+    <ol>
+      <li>Go to <strong>Tools → Scraper Settings</strong></li>
+      <li>Click <strong>➕ New Profile</strong></li>
+      <li>Fill in all the XPath selectors and options</li>
+      <li>Click <strong>Save Profile</strong></li>
+    </ol>
+
+    <p><strong>Step 2:</strong> Run the scraper:</p>
+    <div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Dry run (preview only)</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">wp</span> scraper run <span class="at">--profile</span><span class="op">=</span>your-profile-name</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Live run (actually create posts)</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="ex">wp</span> scraper run <span class="at">--profile</span><span class="op">=</span>your-profile-name <span class="at">--live</span></span></code></pre></div>
+
+    <div class="callout callout-info">
+      <p><strong>💡 Dry Run by Default:</strong> The scraper runs in dry run mode by default. You must add the <code>--live</code> flag to actually create posts.</p>
+    </div>
+
+    <hr />
+
+    <h2 id="managing-profiles">Managing Profiles</h2>
+
+    <h3 id="creating-a-profile">Creating a Profile</h3>
+    <ol>
+      <li>Go to <strong>Tools → Scraper Settings</strong></li>
+      <li>Click <strong>➕ New Profile</strong></li>
+      <li>Fill in:
+        <ul>
+          <li><strong>Profile Name</strong> (required) - e.g., "Press Releases"</li>
+          <li><strong>Source URL</strong> (required) - Archive page to scrape</li>
+          <li><strong>XPath Selectors</strong> (required) - For listing, title, content, date</li>
+          <li><strong>Categories & Tags</strong> (optional) - Comma-separated</li>
+          <li><strong>Remove Elements</strong> (optional) - One XPath per line</li>
+        </ul>
+      </li>
+      <li>Click <strong>Save Profile</strong></li>
+    </ol>
+
+    <h3 id="switching-between-profiles">Switching Between Profiles</h3>
+    <p>Click on any profile tab at the top of the admin page to switch between profiles.</p>
+
+    <h3 id="editing-a-profile">Editing a Profile</h3>
+    <ol>
+      <li>Click the profile tab</li>
+      <li>Make your changes</li>
+      <li>Click <strong>Save Profile</strong></li>
+    </ol>
+
+    <h3 id="duplicating-a-profile">Duplicating a Profile</h3>
+    <ol>
+      <li>Click the profile tab you want to duplicate</li>
+      <li>Click <strong>📑 Duplicate Profile</strong></li>
+      <li>A copy will be created with "(Copy)" added to the name</li>
+    </ol>
+
+    <h3 id="deleting-a-profile">Deleting a Profile</h3>
+    <ol>
+      <li>Click the profile tab you want to delete</li>
+      <li>Click <strong>🗑️ Delete Profile</strong></li>
+      <li>Confirm the deletion</li>
+    </ol>
+
+    <h3 id="listing-profiles-via-cli">Listing Profiles via CLI</h3>
+    <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">wp</span> scraper list-profiles</code></pre></div>
+
+    <div class="callout callout-success">
+      <p><strong>✨ Multiple Profiles:</strong> You can create unlimited profiles for different content sources and switch between them easily!</p>
+      <pre><code>wp scraper run --profile=press-releases --live
+wp scraper run --profile=blog-posts --live
+wp scraper run --profile=news-articles --live</code></pre>
+    </div>
+
+    <!-- <h2 id="command-options">Command Options</h2>
+
+    <h3 id="required-parameters">Required Parameters</h3>
+    <p><em>Only required when using command-line method. Not needed with saved admin settings.</em></p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Parameter</th>
+          <th>Description</th>
+          <th>Example</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>--source-url</code></td>
+          <td>URL of the archive to scrape</td>
+          <td><code>https://example.com/news</code></td>
+        </tr>
+        <tr>
+          <td><code>--post-type</code></td>
+          <td>WordPress post type (post, page, custom)</td>
+          <td><code>post</code></td>
+        </tr>
+        <tr>
+          <td><code>--listing-xpath</code></td>
+          <td>XPath to find links to each post on the archive</td>
+          <td><code>//a[@class="link"]</code></td>
+        </tr>
+        <tr>
+          <td><code>--title-xpath</code></td>
+          <td>XPath to extract title from article page</td>
+          <td><code>//h1</code></td>
+        </tr>
+        <tr>
+          <td><code>--content-xpath</code></td>
+          <td>XPath to extract content from article page</td>
+          <td><code>//article</code></td>
+        </tr>
+        <tr>
+          <td><code>--date-xpath</code></td>
+          <td>XPath to extract date from article page</td>
+          <td><code>//time</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 id="optional-parameters">Optional Parameters</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Parameter</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>--live</code></td>
+          <td>false</td>
+          <td>Actually create posts (default is dry run)</td>
+        </tr>
+        <tr>
+          <td><code>--start-page</code></td>
+          <td>1</td>
+          <td>Archive page number from which extraction should begin</td>
+        </tr>
+        <tr>
+          <td><code>--max-pages</code></td>
+          <td>1</td>
+          <td>Number of pages to scrape</td>
+        </tr>
+        <tr>
+          <td><code>--posts-per-batch</code></td>
+          <td>0</td>
+          <td>Posts to process per run (0 = process all found)</td>
+        </tr>
+        <tr>
+          <td><code>--status</code></td>
+          <td>publish</td>
+          <td>Post status (publish or draft)</td>
+        </tr>
+        <tr>
+          <td><code>--categories</code></td>
+          <td>none</td>
+          <td>Category names (comma-separated)</td>
+        </tr>
+        <tr>
+          <td><code>--tags</code></td>
+          <td>none</td>
+          <td>Tag names (comma-separated)</td>
+        </tr>
+        <tr>
+          <td><code>--excerpt-xpath</code></td>
+          <td>auto</td>
+          <td>XPath to extract excerpt</td>
+        </tr>
+        <tr>
+          <td><code>--page-param</code></td>
+          <td>page</td>
+          <td>URL parameter for pagination</td>
+        </tr>
+        <tr>
+          <td><code>--remove-xpath</code></td>
+          <td>none</td>
+          <td>Elements to remove (repeatable)</td>
+        </tr>
+        <tr>
+          <td><code>--fallback-image-id</code></td>
+          <td>0</td>
+          <td>WordPress media ID for fallback image</td>
+        </tr>
+      </tbody>
+    </table> -->
+
+    <!-- <h3 id="new-features-v2">New Features in v2.0</h3>
+    
+    <div class="callout callout-success">
+      <p><strong>✨ Multiple Categories & Tags:</strong> You can now assign multiple categories and tags to imported posts!</p>
+      <pre><code>--categories="News, Press Release, Featured"
+--tags="Industry News, 2024, Breaking"</code></pre>
+    </div>
+
+    <div class="callout callout-success">
+      <p><strong>✨ Smart Batch Processing:</strong> The scraper now intelligently skips already-imported posts and continues fetching until it has enough new posts!</p>
+      <pre><code>Posts Per Batch: 5
+
+Run 1: Imports posts 1-5
+Run 2: Skips 1-5, imports posts 6-10
+Run 3: Skips 1-10, imports posts 11-15</code></pre>
+    </div>
+
+    <div class="callout callout-success">
+      <p><strong>✨ Graceful Interruption:</strong> Press <code>Ctrl+C</code> at any time to stop the scraper. It will finish the current post and show you the results!</p>
+    </div>
+
+    <hr /> -->
+
+    <h2 id="finding-xpath-selectors">Finding XPath Selectors</h2>
+
+    <h3 id="using-browser-developer-tools">Using Browser Developer Tools</h3>
+
+    <ol type="1">
+      <li><strong>Open the target website</strong> in Chrome or Firefox</li>
+      <li><strong>Right-click</strong> on the element you want (title, content, etc.)</li>
+      <li><strong>Select "Inspect"</strong> or "Inspect Element"</li>
+      <li>In the Developer Tools panel:
+        <ul>
+          <li><strong>Right-click</strong> on the highlighted HTML element</li>
+          <li>Select <strong>Copy → Copy XPath</strong></li>
+        </ul>
+      </li>
+      <li><strong>Paste</strong> this XPath into the admin form</li>
+    </ol>
+
+    <div class="callout callout-info">
+      <p><strong>💡 Pro Tip:</strong> The admin interface has a built-in XPath guide! Click the <strong>📖 How to find XPath selectors</strong> button for detailed instructions and examples.</p>
+    </div>
+
+    <h3 id="testing-xpath-in-browser-console">Testing XPath in Browser Console</h3>
+    <p>Open the browser console (F12) and test your XPath:</p>
+    <div class="sourceCode"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="co">// Test an XPath selector:</span>
+<span class="fu">$x</span>(<span class="st">&#39;//article//h1&#39;</span>)
+
+<span class="co">// This returns an array of matching elements</span>
+<span class="co">// If you see results, your XPath is working!</span></code></pre></div>
+
+    <h3 id="common-xpath-examples">Common XPath Examples</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Element</th>
+          <th>XPath Example</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Title in H1</td>
+          <td><code>//h1</code> or <code>//article//h1</code></td>
+        </tr>
+        <tr>
+          <td>Content div</td>
+          <td><code>//div[@class="content"]</code></td>
+        </tr>
+        <tr>
+          <td>Article body</td>
+          <td><code>//article</code></td>
+        </tr>
+        <tr>
+          <td>Time/Date</td>
+          <td><code>//time</code> or <code>//span[@class="date"]</code></td>
+        </tr>
+        <tr>
+          <td>All article links</td>
+          <td><code>//a[contains(@href, "/articles/")]</code></td>
+        </tr>
+        <tr>
+          <td>Links with class</td>
+          <td><code>//a[@class="article-link"]</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <hr />
+
+    <h2 id="removing-unwanted-elements">Removing Unwanted Elements</h2>
+
+    <p>The scraper can automatically remove ads, social buttons, scripts, and other unwanted elements from imported content.</p>
+
+    <h3 id="how-to-use">How to Use</h3>
+    <ol>
+      <li>In your profile settings, find <strong>Remove Elements XPath</strong></li>
+      <li>Enter XPath selectors, <strong>one per line</strong></li>
+      <li>Save profile</li>
+    </ol>
+
+    <h3 id="common-examples">Common Examples</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Remove</th>
+          <th>XPath Example</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Ads</td>
+          <td><code>//div[@class="advertisement"]</code></td>
+        </tr>
+        <tr>
+          <td>Social buttons</td>
+          <td><code>//div[contains(@class, "social-share")]</code></td>
+        </tr>
+        <tr>
+          <td>Scripts</td>
+          <td><code>//script</code></td>
+        </tr>
+        <tr>
+          <td>Iframes</td>
+          <td><code>//iframe</code></td>
+        </tr>
+        <tr>
+          <td>Comments</td>
+          <td><code>//div[@id="comments"]</code></td>
+        </tr>
+        <tr>
+          <td>Related posts</td>
+          <td><code>//div[contains(@class, "related-posts")]</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 id="example-configuration">Example Configuration</h3>
+    <p>In the <strong>Remove Elements XPath</strong> field:</p>
+    <pre><code>//div[@class="ads"]
+//div[contains(@class, "social-share")]
+//script
+//iframe
+//div[@id="comments"]</code></pre>
+
+    <div class="callout callout-success">
+      <p><strong>✨ Clean Content:</strong> These elements will be removed before the content is saved to WordPress, giving you clean, distraction-free posts!</p>
+    </div>
+
+    <hr />
+
+    <h2 id="usage-examples">Usage Examples</h2>
+
+    <h3 id="example-1-simplest-usage">Example 1: Simplest Usage (With Profile)</h3>
+    <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="co"># Configure once in admin, then just run:</span>
+<span class="ex">wp</span> scraper run <span class="at">--profile</span><span class="op">=</span>press-releases <span class="at">--live</span></code></pre></div>
+
+    <h3 id="example-2-import-with-multiple-categories-and-tags">Example 2: Import With Multiple Categories and Tags</h3>
+    <p>Configure in admin:</p>
+    <ul>
+      <li><strong>Categories:</strong> <code>News, Press Release, Featured</code></li>
+      <li><strong>Tags:</strong> <code>Industry Update, 2024, Breaking News</code></li>
+    </ul>
+    <p>Then run:</p>
+    <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">wp</span> scraper run <span class="at">--profile</span><span class="op">=</span>news <span class="at">--live</span></code></pre></div>
+
+    <h3 id="example-3-incremental-batch-import">Example 3: Incremental Batch Import</h3>
+    <p>Configure in admin with <strong>Posts Per Batch: 10</strong>, then:</p>
+    <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="co"># Run 1: Imports first 10 posts</span>
+<span class="ex">wp</span> scraper run <span class="at">--profile</span><span class="op">=</span>blog <span class="at">--live</span>
+
+<span class="co"># Run 2: Automatically skips first 10, imports next 10</span>
+<span class="ex">wp</span> scraper run <span class="at">--profile</span><span class="op">=</span>blog <span class="at">--live</span>
+
+<span class="co"># Run 3: Automatically skips first 20, imports next 10</span>
+<span class="ex">wp</span> scraper run <span class="at">--profile</span><span class="op">=</span>blog <span class="at">--live</span></code></pre></div>
+
+    <h3 id="example-4-process-all-posts-in-range">Example 4: Process All Posts in Range</h3>
+    <p>Set <strong>Posts Per Batch: 0</strong> in admin to process all posts found:</p>
+    <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">wp</span> scraper run <span class="at">--profile</span><span class="op">=</span>archive <span class="at">--live</span>
+
+<span class="co"># Output: "Processing ALL items found (45 total)"</span></code></pre></div>
+
+    <!-- <h3 id="example-5-test-with-command-line">Example 5: One-Off Test With Command-Line</h3>
+    <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">wp</span> scraper run <span class="dt">\</span>
+  <span class="at">--source-url</span><span class="op">=</span>https://blog.example.com <span class="dt">\</span>
+  <span class="at">--post-type</span><span class="op">=</span>post <span class="dt">\</span>
+  <span class="at">--listing-xpath</span><span class="op">=</span><span class="st">&#39;//a[@class=&quot;post-link&quot;]&#39;</span> <span class="dt">\</span>
+  <span class="at">--title-xpath</span><span class="op">=</span><span class="st">&#39;//h1[@class=&quot;post-title&quot;]&#39;</span> <span class="dt">\</span>
+  <span class="at">--content-xpath</span><span class="op">=</span><span class="st">&#39;//div[@class=&quot;post-content&quot;]&#39;</span> <span class="dt">\</span>
+  <span class="at">--date-xpath</span><span class="op">=</span><span class="st">&#39;//time&#39;</span> <span class="dt">\</span>
+  <span class="at">--categories</span><span class="op">=</span><span class="st">&quot;Blog, Featured&quot;</span> <span class="dt">\</span>
+  <span class="at">--tags</span><span class="op">=</span><span class="st">&quot;Tech, 2024&quot;</span> <span class="dt">\</span>
+  <span class="at">--live</span></code></pre></div> -->
+
+    <h3 id="example-6-import-as-drafts">Example 5: Import as Drafts for Review</h3>
+    <p>Set <strong>Post Status: Draft</strong> in admin, then:</p>
+    <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">wp</span> scraper run <span class="at">--profile</span><span class="op">=</span>reviews <span class="at">--live</span></code></pre></div>
+
+    <h3 id="example-7-multiple-profiles">Example 6: Using Multiple Profiles</h3>
+    <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="co"># Import from different sources with one command each</span>
+<span class="ex">wp</span> scraper run <span class="at">--profile</span><span class="op">=</span>press-releases <span class="at">--live</span>
+<span class="ex">wp</span> scraper run <span class="at">--profile</span><span class="op">=</span>blog-posts <span class="at">--live</span>
+<span class="ex">wp</span> scraper run <span class="at">--profile</span><span class="op">=</span>news-articles <span class="at">--live</span></code></pre></div>
+
+    <hr />
+
+    <h2 id="understanding-the-output">Understanding the Output</h2>
+
+    <h3 id="standard-output">Standard Output</h3>
+    <pre><code>✓ Loaded profile: Press Releases
+
+=== DGD Web Scraper ===
+
+Configuration:
+  Site URL: https://yoursite.com
+  Database: wordpress@localhost
+  Source URL: https://example.com/news
+  Post Type: post
+  Post Author: johnsmith (ID: 1)
+  Start Page: 1
+  Max Pages: 3
+  Posts Per Batch: All
+  Post Status: publish
+  Categories: News, Press Release
+  Tags: Industry News, 2024
+  Mode: LIVE (posts will be created)
+
+Category IDs: 14, 15
+Tag IDs: 23, 24, 25
+
+Fetching content URLs...
+Success: Found 27 items
+
+Tip: Press Ctrl+C at any time to stop and see results
+
+Processing ALL items found (27 total)
+
+Processing content  100% [==================================]
+
+✓ Created post ID 1234: Breaking News Story
+✓ Created post ID 1235: Industry Update
+⊘ Already imported as post ID 1200 (skipped)
+
+=== Import Complete ===
+
+Results:
+  Total Processed: 27
+  ✓ Created: 24
+  ⊘ Skipped: 3
+  ✗ Errors: 0</code></pre>
+
+    <h3 id="what-each-section-means">What Each Section Means</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Section</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Configuration</strong></td>
+          <td>Shows your current settings and the user who will be set as post author</td>
+        </tr>
+        <tr>
+          <td><strong>Category/Tag IDs</strong></td>
+          <td>WordPress category and tag IDs where posts are assigned</td>
+        </tr>
+        <tr>
+          <td><strong>Progress Bar</strong></td>
+          <td>Visual progress indicator</td>
+        </tr>
+        <tr>
+          <td><strong>Created</strong></td>
+          <td>Number of new posts created</td>
+        </tr>
+        <tr>
+          <td><strong>Skipped</strong></td>
+          <td>Duplicates (already imported)</td>
+        </tr>
+        <tr>
+          <td><strong>Errors</strong></td>
+          <td>Number of failures</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 id="success-indicators">Success Indicators</h3>
+    <ul>
+      <li><strong><span style="color: green">✓</span> Green checkmark:</strong> Post created successfully</li>
+      <li><strong><span style="color: #d0d000">⊘</span> Yellow skip:</strong> Post already exists (duplicate)</li>
+      <li><strong><span style="color: red">✗</span> Red X:</strong> Error occurred</li>
+    </ul>
+
+    <hr />
+
+    <h2 id="featured-images">Featured Images</h2>
+
+    <h3 id="how-featured-images-work">How Featured Images Work</h3>
+    <ol type="1">
+      <li><strong>Extracts first image</strong> from scraped content (within your <code>content_xpath</code>)</li>
+      <li><strong>Validates image URL</strong> - checks for valid extension (.jpg, .png, etc.)</li>
+      <li><strong>Attempts to import to Media Library</strong> - downloads and saves as WordPress attachment</li>
+      <li><strong>Falls back to FIFU plugin</strong> if import fails (sets external URL)</li>
+      <li><strong>Uses fallback image</strong> if configured and no valid image found</li>
+    </ol>
+
+    <div class="callout callout-info">
+      <p><strong>📷 Image Source:</strong> Images are extracted from the <strong>content area only</strong> (not headers/footers) to avoid grabbing logos or navigation images. If you need a specific image outside the content area, use the <strong>Featured Image XPath</strong> field in your profile.</p>
+    </div>
+
+    <div class="callout callout-success">
+      <p><strong>✅ Valid Image URLs:</strong></p>
+      <pre><code>https://example.com/images/photo.jpg
+https://cdn.example.com/picture.png
+https://media.example.com/image.webp</code></pre>
+    </div>
+
+    <div class="callout callout-danger">
+      <p><strong>❌ Invalid Image URLs (use fallback if configured):</strong></p>
+      <pre><code>https://example.com/media?id=12345
+https://example.com/document
+(any URL without an image file extension)</code></pre>
+    </div>
+
+    <h3 id="setting-a-fallback-image">Setting a Fallback Image</h3>
+    <p>Configure in your profile settings under <strong>Fallback Image ID</strong>.</p>
+
+    <p>To find your image ID:</p>
+    <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">wp</span> media list <span class="at">--format</span><span class="op">=</span>table</code></pre></div>
+
+    <h3 id="finding-posts-with-fallback-images">Finding Posts With Fallback Images</h3>
+    <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">wp</span> post list <span class="dt">\</span>
+  <span class="at">--meta_key</span><span class="op">=</span>used_fallback_featured_image <span class="dt">\</span>
+  <span class="at">--meta_value</span><span class="op">=</span>true <span class="dt">\</span>
+  <span class="at">--format</span><span class="op">=</span>table</code></pre></div>
+
+    <hr />
+
+    <h2 id="troubleshooting">Troubleshooting</h2>
+
+    <h3 id="problem-command-not-found">Problem: "Command not found"</h3>
+    <div class="callout callout-warning">
+      <p><strong>Cause:</strong> Plugin not activated or WP-CLI not finding it</p>
+      <p><strong>Solution:</strong></p>
+      <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="co"># Check if plugin is active</span>
+<span class="ex">wp</span> plugin list | grep generic-web-scraper
+
+<span class="co"># If not active, activate it</span>
+<span class="ex">wp</span> plugin activate dgd-web-scraper
+
+<span class="co"># Verify command is available</span>
+<span class="ex">wp</span> scraper --help</code></pre></div>
+    </div>
+
+    <h3 id="problem-no-content-found">Problem: "No content found"</h3>
+    <div class="callout callout-warning">
+      <p><strong>Cause:</strong> Listing XPath selector not finding links</p>
+      <p><strong>Solution:</strong></p>
+      <ol>
+        <li>Test your XPath in browser console: <code>$x('your-xpath')</code></li>
+        <li>Make sure you're targeting the right elements</li>
+        <li>Check if content loads via JavaScript (may need different approach)</li>
+      </ol>
+    </div>
+
+    <h3 id="problem-failed-to-extract-data">Problem: "Failed to extract data"</h3>
+    <div class="callout callout-warning">
+      <p><strong>Cause:</strong> Title, content, or date XPath not working</p>
+      <p><strong>Solution:</strong></p>
+      <ol>
+        <li>Test each XPath selector individually</li>
+        <li>Inspect the HTML structure of target pages</li>
+        <li>Try simpler XPath selectors first</li>
+        <li>Use <code>--debug</code> flag to see detailed output</li>
+      </ol>
+    </div>
+
+    <h3 id="problem-all-posts-skipped">Problem: "All posts skipped"</h3>
+    <div class="callout callout-info">
+      <p><strong>Cause:</strong> Posts already imported (duplicate detection working)</p>
+      <p><strong>This is expected behavior.</strong> The scraper prevents duplicates by checking the <code>source_url</code> meta field. To re-import, delete existing posts first.</p>
+    </div>
+
+    <h3 id="problem-taxonomies-not-showing">Problem: "Categories/Tags fields not showing in admin"</h3>
+    <div class="callout callout-info">
+      <p><strong>Cause:</strong> Post Type is set to "page"</p>
+      <p><strong>This is expected behavior.</strong> Pages don't support categories and tags by default, so these fields are automatically hidden when you select "page" as the post type.</p>
+    </div>
+
+    <h3 id="problem-profile-not-found">Problem: "Profile not found"</h3>
+    <div class="callout callout-warning">
+      <p><strong>Cause:</strong> Profile name doesn't match saved profiles</p>
+      <p><strong>Solution:</strong></p>
+      <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="co"># List all available profiles</span>
+<span class="ex">wp</span> scraper list-profiles
+
+<span class="co"># Use the exact profile key shown in the list</span>
+<span class="ex">wp</span> scraper run <span class="at">--profile</span><span class="op">=</span>press-releases <span class="at">--live</span></code></pre></div>
+    </div>
+
+    <hr />
+
+    <h2 id="automatic-scheduling">Automatic Scheduling (WP-Cron)</h2>
+
+    <p>DGD Web Scraper includes built-in WordPress cron integration that lets you schedule automatic imports directly from the admin interface — no server cron configuration required.</p>
+
+    <h3 id="enabling-automatic-scheduling">Enabling Automatic Scheduling</h3>
+    <ol>
+      <li>Go to <strong>Tools → Scraper Settings</strong></li>
+      <li>Select the profile you want to schedule</li>
+      <li>Scroll down to the <strong>Automatic Scheduling</strong> section</li>
+      <li>Check <strong>Enable Automatic Scraping</strong></li>
+      <li>Set your desired <strong>Frequency</strong> (1–24) and <strong>Period</strong> (hour, day, or week)</li>
+      <li>Click <strong>Save Profile</strong></li>
+    </ol>
+
+    <div class="callout callout-success">
+      <p><strong>✨ Zero Configuration:</strong> Once enabled, WordPress will automatically run the scraper for that profile at the interval you specify. No shell scripts, no system crontab — it just works.</p>
+    </div>
+
+    <h3 id="scheduling-options">Scheduling Options</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Setting</th>
+          <th>Options</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Enable Automatic Scraping</strong></td>
+          <td>On / Off</td>
+          <td>Toggle scheduled imports for this profile</td>
+        </tr>
+        <tr>
+          <td><strong>Frequency</strong></td>
+          <td>1–24</td>
+          <td>How many times to run per period</td>
+        </tr>
+        <tr>
+          <td><strong>Period</strong></td>
+          <td>Hour / Day / Week</td>
+          <td>The time window for the frequency</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 id="schedule-examples">Schedule Examples</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Frequency</th>
+          <th>Period</th>
+          <th>Result</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>Day</td>
+          <td>Runs once every 24 hours</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Day</td>
+          <td>Runs every 12 hours</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>Hour</td>
+          <td>Runs every 15 minutes</td>
+        </tr>
+        <tr>
+          <td>1</td>
+          <td>Week</td>
+          <td>Runs once per week</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Week</td>
+          <td>Runs roughly every 2.3 days</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 id="how-wp-cron-works">How It Works</h3>
+    <ul>
+      <li>When you save a profile with scheduling enabled, the plugin registers a WordPress cron event with a custom interval matching your settings.</li>
+      <li>Each scheduled profile gets its own independent cron hook (<code>dgd_scraper_cron_{profile-key}</code>), so multiple profiles can run on different schedules.</li>
+      <li>When the cron event fires, the scraper runs the profile in <strong>live mode</strong> automatically — importing new content and skipping duplicates just like a manual run.</li>
+      <li>If you change the frequency or period and re-save, the old schedule is cleared and a new one is created automatically.</li>
+      <li>Disabling the checkbox or deleting the profile clears its scheduled events.</li>
+      <li>All scheduled events are cleaned up when the plugin is deactivated.</li>
+    </ul>
+
+    <h3 id="viewing-next-run">Viewing the Next Scheduled Run</h3>
+    <p>After saving a profile with scheduling enabled, the admin interface displays the <strong>Next Scheduled Run</strong> date and time directly below the scheduling options. This shows exactly when WordPress will next execute the scraper for that profile.</p>
+
+    <div class="callout callout-info">
+      <p><strong>💡 WP-Cron Dependency:</strong> WordPress cron is triggered by site visits. If your site has very low traffic, scheduled events may not fire precisely on time. For high-precision scheduling on low-traffic sites, set up a system cron to hit <code>wp-cron.php</code> regularly:</p>
+      <pre><code>*/5 * * * * curl -s https://yoursite.com/wp-cron.php?doing_wp_cron > /dev/null 2>&1</code></pre>
+      <p>Or use WP-CLI:</p>
+      <pre><code>*/5 * * * * cd /path/to/wordpress && wp cron event run --due-now > /dev/null 2>&1</code></pre>
+    </div>
+
+    <h3 id="per-profile-scheduling">Per-Profile Scheduling</h3>
+    <p>Each profile has its own independent schedule. This means you can:</p>
+    <ul>
+      <li>Run a "Breaking News" profile every 15 minutes</li>
+      <li>Run a "Weekly Digest" profile once per week</li>
+      <li>Run a "Blog Archive" profile once per day</li>
+      <li>Leave other profiles with scheduling disabled for manual-only use</li>
+    </ul>
+
+    <h3 id="debugging-scheduled-events">Debugging Scheduled Events</h3>
+    <p>If you need to verify that schedules are set up correctly, use the included debug script:</p>
+    <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">wp</span> eval-file wp-content/plugins/dgd-web-scraper/debug-schedule.php</code></pre></div>
+    <p>This shows all registered custom intervals, currently scheduled events, and next run times.</p>
+
+    <hr />
+
+    <h2 id="advanced-usage">Advanced Usage</h2>
+
+    <h3 id="incremental-import-strategy">Intelligent Incremental Import</h3>
+    <p>The scraper now automatically handles incremental imports! Just set a batch size and run multiple times:</p>
+    <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="co"># Configure in admin: Posts Per Batch = 10</span>
+
+<span class="co"># Run 1: Finds and imports first 10 new posts</span>
+<span class="ex">wp</span> scraper run <span class="at">--profile</span><span class="op">=</span>news <span class="at">--live</span>
+
+<span class="co"># Run 2: Automatically skips first 10, imports next 10 new posts</span>
+<span class="ex">wp</span> scraper run <span class="at">--profile</span><span class="op">=</span>news <span class="at">--live</span>
+
+<span class="co"># Run 3: Automatically skips first 20, imports next 10 new posts</span>
+<span class="ex">wp</span> scraper run <span class="at">--profile</span><span class="op">=</span>news <span class="at">--live</span>
+
+<span class="co"># Continue as needed...</span></code></pre></div>
+
+    <div class="callout callout-success">
+      <p><strong>✨ Smart Detection:</strong> The scraper automatically searches through pages to find enough new posts, skipping any that are already imported!</p>
+    </div>
+
+    <h3 id="graceful-interruption">Graceful Interruption</h3>
+    <p>You can stop the scraper at any time:</p>
+    <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="co"># Start the scraper</span>
+<span class="ex">wp</span> scraper run <span class="at">--profile</span><span class="op">=</span>blog <span class="at">--live</span>
+
+<span class="co"># Press Ctrl+C to stop gracefully</span>
+<span class="co"># The scraper will:</span>
+<span class="co"># 1. Finish processing the current post</span>
+<span class="co"># 2. Show you the results</span>
+<span class="co"># 3. Exit cleanly</span></code></pre></div>
+
+    <h3 id="automated-imports-with-cron">Automated Imports with System Cron (Alternative)</h3>
+
+    <div class="callout callout-info">
+      <p><strong>💡 Prefer Built-In Scheduling:</strong> The plugin now includes <a href="#automatic-scheduling">built-in WordPress cron scheduling</a> that you can configure directly from the admin interface. The system cron approach below is only needed if you require precise timing or want to run imports outside of WordPress.</p>
+    </div>
+
+    <p>Create a bash script (<code>import-content.sh</code>):</p>
+    <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="co">#!/bin/bash</span>
+<span class="co"># Daily content import</span>
+
+<span class="va">LOG_FILE</span><span class="op">=</span><span class="st">&quot;/var/log/scraper.log&quot;</span>
+
+<span class="bu">echo</span> <span class="st">&quot;Starting import: </span><span class="va">$(</span><span class="fu">date</span><span class="va">)</span><span class="st">&quot;</span> <span class="op">&gt;&gt;</span> <span class="va">$LOG_FILE</span>
+
+<span class="co"># Import from multiple profiles</span>
+<span class="ex">wp</span> scraper run <span class="at">--profile</span><span class="op">=</span>press-releases <span class="at">--live</span> <span class="op">&gt;&gt;</span> <span class="va">$LOG_FILE</span> <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span>
+<span class="ex">wp</span> scraper run <span class="at">--profile</span><span class="op">=</span>blog-posts <span class="at">--live</span> <span class="op">&gt;&gt;</span> <span class="va">$LOG_FILE</span> <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span>
+
+<span class="bu">echo</span> <span class="st">&quot;Finished: </span><span class="va">$(</span><span class="fu">date</span><span class="va">)</span><span class="st">&quot;</span> <span class="op">&gt;&gt;</span> <span class="va">$LOG_FILE</span></code></pre></div>
+
+    <p>Add to crontab to run daily at 2 AM:</p>
+    <pre><code>0 2 * * * /path/to/import-content.sh</code></pre>
+
+    <h3 id="checking-import-status">Checking Import Status</h3>
+    <p>View recently imported posts:</p>
+    <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">wp</span> post list <span class="dt">\</span>
+  <span class="at">--meta_key</span><span class="op">=</span>imported_from <span class="dt">\</span>
+  <span class="at">--meta_value</span><span class="op">=</span><span class="st">&quot;scraper&quot;</span> <span class="dt">\</span>
+  <span class="at">--orderby</span><span class="op">=</span>date <span class="dt">\</span>
+  <span class="at">--order</span><span class="op">=</span>DESC <span class="dt">\</span>
+  <span class="at">--format</span><span class="op">=</span>table</code></pre></div>
+
+    <p>Count total imported posts:</p>
+    <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">wp</span> post list <span class="dt">\</span>
+  <span class="at">--meta_key</span><span class="op">=</span>imported_from <span class="dt">\</span>
+  <span class="at">--meta_value</span><span class="op">=</span><span class="st">&quot;scraper&quot;</span> <span class="dt">\</span>
+  <span class="at">--format</span><span class="op">=</span>count</code></pre></div>
+
+    <h3 id="custom-pagination-parameter">Custom Pagination Parameter</h3>
+    <p>Some sites use different pagination parameters. Configure this in your profile's <strong>Page Param</strong> field:</p>
+    <ul>
+      <li>Default: <code>page</code> → <code>?page=2</code></li>
+      <li>Custom: <code>p</code> → <code>?p=2</code></li>
+      <li>Custom: <code>offset</code> → <code>?offset=2</code></li>
+    </ul>
+
+    <h3 id="managing-profiles-via-cli">Managing Profiles via CLI</h3>
+    <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="co"># List all profiles</span>
+<span class="ex">wp</span> scraper list-profiles
+
+<span class="co"># Export profiles (backup)</span>
+<span class="ex">wp</span> option get scraper_profiles <span class="at">--format</span><span class="op">=</span>json <span class="op">&gt;</span> profiles-backup.json
+
+<span class="co"># Import profiles (restore)</span>
+<span class="fu">cat</span> profiles-backup.json <span class="kw">|</span> <span class="ex">wp</span> option set scraper_profiles <span class="at">--format</span><span class="op">=</span>json <span class="ex">-</span></code></pre></div>
+
+    <hr />
+
+    <h2 id="legal-compliance">Legal & Compliance</h2>
+
+    <div class="callout callout-danger">
+      <p><strong>⚖️ IMPORTANT LEGAL NOTICE</strong></p>
+      <p>This tool is provided for legitimate data collection purposes only. <strong>Users are solely responsible</strong> for ensuring their use complies with all applicable laws, regulations, and website terms of service.</p>
+      <p><strong>This information is for educational purposes only and does not constitute legal advice.</strong> Consult with a qualified attorney for guidance on your specific situation.</p>
+    </div>
+
+    <h3 id="is-web-scraping-legal">Is Web Scraping Legal?</h3>
+    
+    <p><strong>Yes, with important conditions.</strong> In the United States, there is no federal law that prohibits web scraping of publicly accessible data. Recent court rulings have clarified that scraping public information is generally legal, but how you scrape and what you do with the data matters significantly.</p>
+
+    <div class="callout callout-success">
+      <p><strong>✅ Generally Legal:</strong></p>
+      <ul>
+        <li>Scraping publicly accessible data (no login required)</li>
+        <li>Using scraped data for personal analysis or research</li>
+        <li>Price monitoring for internal business decisions</li>
+        <li>Market research and competitive analysis</li>
+        <li>Extracting facts and data points (not creative content)</li>
+      </ul>
+    </div>
+
+    <div class="callout callout-danger">
+      <p><strong>❌ Illegal or High Risk:</strong></p>
+      <ul>
+        <li>Scraping content behind login walls or paywalls</li>
+        <li>Republishing copyrighted content (articles, images, creative works)</li>
+        <li>Collecting personal data without legal basis (GDPR/CCPA violations)</li>
+        <li>Bypassing CAPTCHAs or security measures</li>
+        <li>Overloading servers or causing technical harm</li>
+        <li>Violating explicit Terms of Service prohibitions</li>
+      </ul>
+    </div>
+
+    <h3 id="key-laws">Key Laws to Be Aware Of</h3>
+
+    <h4>Computer Fraud and Abuse Act (CFAA)</h4>
+    <p>The CFAA prohibits "unauthorized access" to computer systems. Courts have ruled that accessing publicly available data does not violate the CFAA if you:</p>
+    <ul>
+      <li>Do not bypass login credentials or access controls</li>
+      <li>Do not circumvent technical barriers (CAPTCHAs, rate limits)</li>
+      <li>Scrape only public, non-protected content</li>
+    </ul>
+
+    <h4>Digital Millennium Copyright Act (DMCA)</h4>
+    <p>The DMCA prohibits circumventing technological measures that protect copyrighted works, such as:</p>
+    <ul>
+      <li>Paywalls</li>
+      <li>Login requirements</li>
+      <li>CAPTCHAs</li>
+      <li>Rate limiters</li>
+    </ul>
+
+    <h4>Copyright Law</h4>
+    <p>Copyright protects creative works including articles, blog posts, images, and videos. Key points:</p>
+    <ul>
+      <li><strong>Facts are not copyrightable</strong> - you can extract factual data</li>
+      <li><strong>Creative expression IS copyrightable</strong> - you cannot republish articles</li>
+      <li><strong>Use data for analysis, not republication</strong> - transformative use is safer</li>
+    </ul>
+
+    <h4>GDPR (Europe) & CCPA (California)</h4>
+    <p>These privacy laws regulate collection of personal data:</p>
+    <ul>
+      <li><strong>Personal Data:</strong> Names, emails, phone numbers, addresses, etc.</li>
+      <li><strong>Requirements:</strong> Legal basis for collection, transparency, data subject rights</li>
+      <li><strong>Penalties:</strong> Up to €20 million or 4% of global revenue (GDPR)</li>
+    </ul>
+
+    <h3 id="best-practices">Best Practices for Legal Scraping</h3>
+
+    <h4>1. Check robots.txt</h4>
+    <p>Always check the target site's robots.txt file:</p>
+    <pre><code>https://example.com/robots.txt</code></pre>
+    <p>While not legally binding, respecting robots.txt demonstrates good faith and reduces legal risk.</p>
+
+    <h4>2. Read Terms of Service</h4>
+    <p>Many websites explicitly prohibit scraping in their Terms of Service. Violating ToS can lead to breach of contract claims.</p>
+
+    <h4>3. Implement Rate Limiting</h4>
+    <p>This tool includes a 0.5-second delay between requests. Keep it enabled to:</p>
+    <ul>
+      <li>Avoid overloading servers</li>
+      <li>Prevent "trespass to chattels" claims</li>
+      <li>Reduce risk of IP blocking</li>
+    </ul>
+
+    <h4>4. Only Scrape Public Data</h4>
+    <p>Never scrape:</p>
+    <ul>
+      <li>Content behind login walls</li>
+      <li>Password-protected areas</li>
+      <li>Subscription-only content</li>
+      <li>Private user profiles</li>
+    </ul>
+
+    <h4>5. Respect Copyright</h4>
+    <p><strong>DO:</strong> Extract facts, prices, statistics, public information</p>
+    <p><strong>DON'T:</strong> Republish full articles, images, creative writing, or copyrighted content</p>
+
+    <h4>6. Avoid Personal Data</h4>
+    <p>Be extremely cautious when scraping:</p>
+    <ul>
+      <li>Email addresses</li>
+      <li>Phone numbers</li>
+      <li>Physical addresses</li>
+      <li>Any personally identifiable information (PII)</li>
+    </ul>
+
+    <h3 id="what-you-can-do">What You CAN Do With This Tool</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Use Case</th>
+          <th>Legal Status</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Price monitoring</td>
+          <td>✅ Generally Legal</td>
+          <td>For internal business decisions</td>
+        </tr>
+        <tr>
+          <td>News headlines/summaries</td>
+          <td>✅ Generally Legal</td>
+          <td>Short excerpts, not full articles</td>
+        </tr>
+        <tr>
+          <td>Public statistics</td>
+          <td>✅ Generally Legal</td>
+          <td>Facts are not copyrightable</td>
+        </tr>
+        <tr>
+          <td>Product specifications</td>
+          <td>✅ Generally Legal</td>
+          <td>Factual information</td>
+        </tr>
+        <tr>
+          <td>Market research</td>
+          <td>✅ Generally Legal</td>
+          <td>For internal analysis</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 id="what-you-cannot-do">What You CANNOT Do With This Tool</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Use Case</th>
+          <th>Legal Risk</th>
+          <th>Consequence</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Republish full articles</td>
+          <td>❌ Copyright Infringement</td>
+          <td>Lawsuits, damages up to $150k per work</td>
+        </tr>
+        <tr>
+          <td>Scrape behind logins</td>
+          <td>❌ CFAA Violation</td>
+          <td>Civil/criminal penalties</td>
+        </tr>
+        <tr>
+          <td>Collect personal data</td>
+          <td>❌ GDPR/CCPA Violation</td>
+          <td>Massive fines (up to 4% of revenue)</td>
+        </tr>
+        <tr>
+          <td>Ignore robots.txt</td>
+          <td>⚠️ Shows Bad Faith</td>
+          <td>Strengthens other legal claims</td>
+        </tr>
+        <tr>
+          <td>Overload servers</td>
+          <td>❌ Trespass/Damage</td>
+          <td>Damages, injunctions</td>
+        </tr>
+        <tr>
+          <td>Redistribute scraped data</td>
+          <td>❌ Copyright/Contract</td>
+          <td>Breach of contract, copyright claims</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 id="landmark-cases">Important Legal Precedents</h3>
+
+    <h4>hiQ Labs v. LinkedIn (2022)</h4>
+    <p>Court ruled that scraping publicly available data does not violate the CFAA. This is one of the strongest precedents supporting web scraping in the U.S.</p>
+
+    <h4>Meta v. Bright Data (2024)</h4>
+    <p>Court found that logged-off scraping of publicly accessible data is legal and did not violate Meta's Terms of Service when done without user accounts.</p>
+
+    <h4>X Corp. v. Bright Data (2024)</h4>
+    <p>Court ruled in favor of the scraper, stating that Terms of Service cannot prevent data scraping since platforms don't own user-generated content.</p>
+
+    <h3 id="compliance-checklist">Compliance Checklist</h3>
+
+    <p>Before scraping a website, verify:</p>
+    
+    <ul class="task-list">
+      <li>✓ Content is publicly accessible (no login required)</li>
+      <li>✓ You've checked robots.txt</li>
+      <li>✓ You've read the Terms of Service</li>
+      <li>✓ You're using appropriate rate limiting (0.5s+ delays)</li>
+      <li>✓ You're not bypassing security measures</li>
+      <li>✓ You won't republish copyrighted content</li>
+      <li>✓ You're not collecting personal data without legal basis</li>
+      <li>✓ Your use is transformative (analysis, not republication)</li>
+    </ul>
+
+    <h3 id="when-to-get-legal-advice">When to Get Legal Advice</h3>
+
+    <p>Consult an attorney if you plan to:</p>
+    <ul>
+      <li>Scrape at large scale (millions of pages)</li>
+      <li>Use data commercially or for profit</li>
+      <li>Collect any personal information</li>
+      <li>Scrape from sites with restrictive Terms of Service</li>
+      <li>Operate in highly regulated industries</li>
+      <li>Distribute or resell scraped data</li>
+    </ul>
+
+    <h3 id="disclaimer">Legal Disclaimer</h3>
+
+    <div class="callout callout-warning">
+      <p><strong>READ CAREFULLY</strong></p>
+      <p>This tool is provided "as is" for legitimate data collection purposes. The developers and distributors of this software:</p>
+      <ul>
+        <li>Do not provide legal advice</li>
+        <li>Are not responsible for users' compliance with applicable laws</li>
+        <li>Cannot be held liable for any misuse or legal consequences</li>
+        <li>Strongly recommend consulting with legal counsel before scraping</li>
+      </ul>
+      <p><strong>By using this tool, you acknowledge that:</strong></p>
+      <ul>
+        <li>You are solely responsible for your use of this software</li>
+        <li>You will comply with all applicable laws and regulations</li>
+        <li>You will respect website terms of service and robots.txt</li>
+        <li>You understand the legal risks involved in web scraping</li>
+      </ul>
+    </div>
+
+    <h3 id="resources">Additional Resources</h3>
+
+    <p>For more information on web scraping legality:</p>
+    <ul>
+      <li><strong>Computer Fraud and Abuse Act:</strong> <a href="https://www.law.cornell.edu/uscode/text/18/1030" target="_blank">18 U.S.C. § 1030</a></li>
+      <li><strong>GDPR Information:</strong> <a href="https://gdpr.eu/" target="_blank">gdpr.eu</a></li>
+      <li><strong>CCPA Information:</strong> <a href="https://oag.ca.gov/privacy/ccpa" target="_blank">California Attorney General</a></li>
+      <li><strong>Robots Exclusion Protocol:</strong> <a href="https://www.robotstxt.org/" target="_blank">robotstxt.org</a></li>
+    </ul>
+
+    <p><strong>Remember:</strong> When in doubt, err on the side of caution and seek professional legal advice.</p>
+
+    <hr />
+
+    <h2 id="faq">FAQ</h2>
+
+    <h3 id="q-how-do-profiles-work">Q: How do profiles work?</h3>
+    <p><strong>A:</strong> Profiles store all your scraper settings (XPath selectors, categories, etc.) in WordPress. You can create unlimited profiles for different content sources and switch between them easily.</p>
+
+    <h3 id="q-do-i-need-to-use-use-saved-flag">Q: Do I need to specify all XPath selectors in the command?</h3>
+    <p><strong>A:</strong> No! Save your settings in a profile, then just run <code>wp scraper run --profile=name --live</code>. Much simpler!</p>
+
+    <h3 id="q-will-this-create-duplicate-posts">Q: Will this create duplicate posts?</h3>
+    <p><strong>A:</strong> No. The scraper checks the <code>source_url</code> meta field before creating posts. If a post with the same source URL exists, it will be skipped.</p>
+
+    <h3 id="q-what-happens-when-running-multiple-times">Q: What happens when I run the scraper multiple times with a batch limit?</h3>
+    <p><strong>A:</strong> The scraper intelligently skips already-imported posts and automatically finds new posts to import. You can safely run it multiple times to import large archives incrementally.</p>
+
+    <h3 id="q-can-i-assign-multiple-categories">Q: Can I assign multiple categories and tags?</h3>
+    <p><strong>A:</strong> Yes! Just separate them with commas: <code>News, Press Release, Featured</code></p>
+
+    <h3 id="q-who-is-set-as-the-post-author">Q: Who is set as the post author?</h3>
+    <p><strong>A:</strong> The WordPress user who runs the WP-CLI command is automatically set as the post author.</p>
+
+    <h3 id="q-what-happens-to-post-dates">Q: What happens to post dates?</h3>
+    <p><strong>A:</strong> The scraper extracts the original publication date and uses that as the WordPress post date, preserving chronological order.</p>
+
+    <h3 id="q-why-are-header-logos-not-being-used-as-featured-images">Q: Why are header logos not being used as featured images?</h3>
+    <p><strong>A:</strong> The scraper only looks for images within the content area (defined by your <code>content_xpath</code>) to avoid grabbing logos, navigation images, or footers. If you need a specific image outside the content area, use the <strong>Featured Image XPath</strong> field in your profile.</p>
+
+    <h3 id="q-can-i-remove-ads-and-unwanted-content">Q: Can I remove ads and unwanted content from imported posts?</h3>
+    <p><strong>A:</strong> Yes! Use the <strong>Remove Elements XPath</strong> field in your profile to specify which elements should be removed (ads, scripts, social buttons, etc.).</p>
+
+    <h3 id="q-can-i-scrape-password-protected-content">Q: Can I scrape password-protected content?</h3>
+    <p><strong>A:</strong> No, the scraper only works with publicly accessible pages.</p>
+
+    <h3 id="q-will-this-work-with-javascript-heavy-sites">Q: Will this work with JavaScript-heavy sites?</h3>
+    <p><strong>A:</strong> The scraper fetches raw HTML. If content is loaded via JavaScript after page load, it won't be captured. You may need a different solution for such sites.</p>
+
+    <h3 id="q-how-do-i-delete-imported-posts">Q: How do I delete imported posts?</h3>
+    <p><strong>A:</strong> Use WP-CLI to bulk delete:</p>
+    <div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">wp</span> post delete <span class="va">$(</span><span class="ex">wp</span> post list <span class="at">--meta_key</span><span class="op">=</span>imported_from <span class="at">--meta_value</span><span class="op">=</span><span class="st">&quot;scraper&quot;</span> <span class="at">--format</span><span class="op">=</span>ids<span class="va">)</span></code></pre></div>
+
+    <h3 id="q-what-happens-when-i-set-posts-per-batch-to-0">Q: What happens when I set Posts Per Batch to 0?</h3>
+    <p><strong>A:</strong> Setting it to 0 means "process all posts found" within your Start Page + Max Pages range. This is now the default setting.</p>
+
+    <h3 id="q-how-does-automatic-scheduling-work">Q: How does automatic scheduling work?</h3>
+    <p><strong>A:</strong> Each profile has its own scheduling settings. Enable the <strong>Automatic Scraping</strong> checkbox, set a frequency and period, then save. The plugin uses WordPress WP-Cron to run the scraper automatically at the interval you configure. See <a href="#automatic-scheduling">Automatic Scheduling</a> for full details.</p>
+
+    <h3 id="q-why-scheduled-import-not-running">Q: Why isn't my scheduled import running on time?</h3>
+    <p><strong>A:</strong> WordPress cron is triggered by site visits. If your site has low traffic, events may fire late. To fix this, set up a system cron to ping <code>wp-cron.php</code> every few minutes. See the <a href="#viewing-next-run">WP-Cron Dependency</a> note for instructions.</p>
+
+    <h3 id="q-can-i-schedule-different-profiles-at-different-intervals">Q: Can I schedule different profiles at different intervals?</h3>
+    <p><strong>A:</strong> Yes! Each profile has independent scheduling settings. You can run one profile hourly and another weekly — they don't affect each other.</p>
+
+    <h3 id="q-what-happens-to-schedules-when-plugin-deactivated">Q: What happens to schedules when the plugin is deactivated?</h3>
+    <p><strong>A:</strong> All scheduled cron events are automatically cleared when the plugin is deactivated. If you reactivate the plugin, you'll need to re-save profiles to re-register their schedules.</p>
+
+    <h3 id="q-is-this-legal">Q: Is this legal?</h3>
+    <p><strong>A:</strong> Scraping public content is generally legal in the United States, but important conditions apply. See the <a href="#legal-compliance"><strong>Legal & Compliance</strong></a> section for comprehensive information on:</p>
+    <ul>
+      <li>What is legal vs. illegal</li>
+      <li>Key laws (CFAA, DMCA, Copyright, GDPR, CCPA)</li>
+      <li>Best practices and compliance checklist</li>
+      <li>When to get legal advice</li>
+    </ul>
+    <p><strong>Key points:</strong> Always check robots.txt and Terms of Service, only scrape public data, don't republish copyrighted content, and avoid collecting personal information.</p>
+
+    <hr />
+
+    <h2 id="metadata-stored">Metadata Stored</h2>
+    <p>Each imported post gets these meta fields:</p>
+    <ul>
+      <li><code>source_url</code> - Original URL (normalized)</li>
+      <li><code>imported_from</code> - Always "scraper"</li>
+      <li><code>import_date</code> - When the post was imported</li>
+      <li><code>used_fallback_featured_image</code> - "true" if fallback used</li>
+    </ul>
+
+    <hr />
+
+    <h2 id="changelog">Changelog</h2>
+    
+    <h3>Version 2.1 (Current)</h3>
+    <ul>
+      <li>✨ <strong>NEW:</strong> Built-in WordPress cron scheduling — automate imports per-profile from the admin UI</li>
+      <li>✨ <strong>NEW:</strong> Configurable frequency (1–24 times per hour, day, or week)</li>
+      <li>✨ <strong>NEW:</strong> Next Scheduled Run display in admin interface</li>
+      <li>✨ <strong>NEW:</strong> Automatic schedule cleanup on profile deletion and plugin deactivation</li>
+      <li>✨ <strong>NEW:</strong> Debug script for inspecting scheduled events (<code>debug-schedule.php</code>)</li>
+    </ul>
+
+    <h3>Version 2.0</h3>
+    <ul>
+      <li>✨ <strong>NEW:</strong> Multiple profile support with admin interface</li>
+      <li>✨ <strong>NEW:</strong> Remove unwanted elements (ads, scripts, etc.) from content</li>
+      <li>✨ <strong>NEW:</strong> Images extracted from content only (not headers/footers)</li>
+      <li>✨ <strong>NEW:</strong> Featured Image XPath for targeting specific images</li>
+      <li>✨ <strong>NEW:</strong> Multiple categories and tags support (comma-separated)</li>
+      <li>✨ <strong>NEW:</strong> Smart incremental batch processing - automatically skips imported posts</li>
+      <li>✨ <strong>NEW:</strong> Graceful interruption with Ctrl+C</li>
+      <li>✨ <strong>NEW:</strong> Automatic post author assignment (current user)</li>
+      <li>✨ <strong>NEW:</strong> Profile management via tabs in admin</li>
+      <li>✨ <strong>NEW:</strong> Duplicate and delete profile actions</li>
+      <li>✨ <strong>NEW:</strong> <code>wp scraper list-profiles</code> command</li>
+      <li>🔧 <strong>IMPROVED:</strong> Better URL handling for relative paths</li>
+      <li>🔧 <strong>IMPROVED:</strong> Enhanced admin interface with better help text</li>
+      <li>🔧 <strong>IMPROVED:</strong> Image import to Media Library with FIFU fallback</li>
+      <li>📚 <strong>UPDATED:</strong> Comprehensive documentation with all new features</li>
+    </ul>
+
+    <h3>Version 1.0</h3>
+    <ul>
+      <li>Initial release</li>
+      <li>Basic scraping functionality</li>
+      <li>XPath-based content extraction</li>
+      <li>Duplicate detection</li>
+      <li>Featured image support</li>
+    </ul>
+
+    <hr />
+
+    <div class="footer">
+      <p><strong>Last Updated:</strong> February 2026 | <strong>Version:</strong> 2.1</p>
+      <p>For support, contact your WordPress administrator</p>
+    </div>
+  </div>
+</body>
+</html>
