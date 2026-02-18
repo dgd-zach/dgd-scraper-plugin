@@ -59,7 +59,8 @@ class Generic_Scraper_Command {
         'processed' => 0,
         'created' => 0,
         'skipped' => 0,
-        'errors' => 0
+        'errors' => 0,
+        'titles' => [],
     ];
     private $is_dry_run = true; // Default to dry run
     private $today_only = false; // When true, only import articles published today (used by cron)
@@ -195,9 +196,9 @@ class Generic_Scraper_Command {
                 $this->stats['errors']++;
             }
 
-            // Content gate skips don't count toward the batch limit
+            // Skips don't count toward the batch limit
             // so the scraper keeps going to fill the requested batch size
-            if ($result !== 'gate_skipped') {
+            if ($result !== 'gate_skipped' && $result !== 'skipped') {
                 $processed_count++;
             }
             $progress->tick();
@@ -529,10 +530,14 @@ class Generic_Scraper_Command {
             // so the processing loop has extras if the content gate filters some out)
             foreach ($page_urls as $url) {
                 // Check if this URL has already been imported
-                if (!$this->post_exists_by_source_url($url)) {
+                $existing_post_id = $this->post_exists_by_source_url($url);
+                if (!$existing_post_id) {
                     $new_urls[] = $url;
                 } else {
-                    WP_CLI::debug("Skipping already imported: $url");
+                    $existing_title = get_the_title($existing_post_id);
+                    WP_CLI::debug("Skipping already imported: \"$existing_title\" ($url)");
+                    $this->stats['skipped']++;
+                    $this->stats['titles'][] = ['title' => $existing_title, 'status' => 'skipped', 'reason' => 'Already imported'];
                 }
             }
             
@@ -648,6 +653,7 @@ class Generic_Scraper_Command {
             if (!$gate_nodes || $gate_nodes->length === 0) {
                 WP_CLI::debug("Content gate: XPath matched no elements, skipping: $url");
                 $this->stats['skipped']++;
+                $this->stats['titles'][] = ['title' => basename(parse_url($url, PHP_URL_PATH)), 'status' => 'skipped', 'reason' => 'Content gate: no match'];
                 return 'gate_skipped';
             }
 
@@ -656,6 +662,7 @@ class Generic_Scraper_Command {
             if (!in_array(strtolower($gate_text), $gate_values_lower, true)) {
                 WP_CLI::debug("Content gate: \"$gate_text\" not in allowed values, skipping: $url");
                 $this->stats['skipped']++;
+                $this->stats['titles'][] = ['title' => basename(parse_url($url, PHP_URL_PATH)), 'status' => 'skipped', 'reason' => "Content gate: \"$gate_text\""];
                 return 'gate_skipped';
             }
 
@@ -679,7 +686,8 @@ class Generic_Scraper_Command {
             $status = get_post_status($existing_id);
             WP_CLI::debug("Already exists as post ID $existing_id (title: \"{$data['title']}\", status: $status)");
             $this->stats['skipped']++;
-            return;
+            $this->stats['titles'][] = ['title' => $data['title'], 'status' => 'skipped', 'reason' => 'Title already exists'];
+            return 'skipped';
         }
 
         // Cron: only import articles published today
@@ -689,7 +697,8 @@ class Generic_Scraper_Command {
             if ($article_date !== $today) {
                 WP_CLI::debug("Skipping (not published today): \"{$data['title']}\" (date: $article_date, today: $today)");
                 $this->stats['skipped']++;
-                return;
+                $this->stats['titles'][] = ['title' => $data['title'], 'status' => 'skipped', 'reason' => 'Not published today'];
+                return 'skipped';
             }
         }
 
@@ -705,9 +714,11 @@ class Generic_Scraper_Command {
                 WP_CLI::line(WP_CLI::colorize('%G✓%n Created post ID ' . $post_id . ': ' . $data['title']));
             }
             $this->stats['created']++;
+            $this->stats['titles'][] = ['title' => $data['title'], 'status' => 'created'];
         } else {
             WP_CLI::warning('Failed to create post: ' . $data['title']);
             $this->stats['errors']++;
+            $this->stats['titles'][] = ['title' => $data['title'], 'status' => 'error'];
         }
     }
 
@@ -929,7 +940,8 @@ class Generic_Scraper_Command {
         // Prepend custom CSS to content if configured
         $post_content = $data['content'];
         if (!empty($this->config['custom_css'])) {
-            $post_content = '<style>' . $this->config['custom_css'] . '</style>' . "\n" . $post_content;
+            $css = preg_replace('/\s*[\r\n]+\s*/', ' ', trim($this->config['custom_css']));
+            $post_content = '<style>' . $css . '</style>' . "\n" . $post_content;
             WP_CLI::debug('Prepended custom CSS to content');
         }
 

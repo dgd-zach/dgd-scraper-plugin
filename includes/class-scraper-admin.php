@@ -1894,6 +1894,47 @@ $x('//article//h1')
                                 : 'This was a preview. No posts were created. Uncheck "Dry Run Mode" to create actual posts.';
 
                             $('#test-run-message').text(message);
+
+                            // Build titles list
+                            if (stats.titles && stats.titles.length > 0) {
+                                var titlesHtml = '<div style="margin-top: 20px;">';
+                                titlesHtml += '<h4 style="margin: 0 0 10px; font-size: 14px; color: #374151;">Items Processed (' + stats.titles.length + ')</h4>';
+                                titlesHtml += '<div style="max-height: 250px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 6px;">';
+                                titlesHtml += '<table style="width: 100%; border-collapse: collapse; font-size: 13px;">';
+                                titlesHtml += '<thead><tr style="background: #f9fafb; position: sticky; top: 0;">';
+                                titlesHtml += '<th style="padding: 8px 12px; text-align: left; border-bottom: 1px solid #e5e7eb; font-weight: 600;">Title</th>';
+                                titlesHtml += '<th style="padding: 8px 12px; text-align: center; border-bottom: 1px solid #e5e7eb; font-weight: 600; width: 90px;">Status</th>';
+                                titlesHtml += '</tr></thead><tbody>';
+
+                                var statusStyles = {
+                                    'created': 'background:#d1fae5; color:#065f46; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:600;',
+                                    'skipped': 'background:#fef3c7; color:#92400e; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:600;',
+                                    'error':   'background:#fee2e2; color:#991b1b; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:600;'
+                                };
+
+                                $.each(stats.titles, function(i, item) {
+                                    var rowBg = i % 2 === 0 ? '#ffffff' : '#f9fafb';
+                                    var badge = statusStyles[item.status] || statusStyles['skipped'];
+                                    var label = item.status.charAt(0).toUpperCase() + item.status.slice(1);
+                                    var reasonHtml = item.reason ? '<div style="font-size:10px; color:#6b7280; margin-top:2px;">' + $('<div>').text(item.reason).html() + '</div>' : '';
+                                    titlesHtml += '<tr style="background:' + rowBg + ';">';
+                                    titlesHtml += '<td style="padding: 8px 12px; border-bottom: 1px solid #f3f4f6;">' + $('<div>').text(item.title).html() + '</td>';
+                                    titlesHtml += '<td style="padding: 8px 12px; border-bottom: 1px solid #f3f4f6; text-align: center;"><span style="' + badge + '">' + label + '</span>' + reasonHtml + '</td>';
+                                    titlesHtml += '</tr>';
+                                });
+
+                                titlesHtml += '</tbody></table></div></div>';
+                                $('#test-run-results').find('.titles-list-wrapper').remove();
+                                $('#test-run-results').append('<div class="titles-list-wrapper">' + titlesHtml + '</div>');
+                            }
+
+                            $('#test-run-results').fadeIn(200);
+
+                            var message = liveMode
+                                ? 'Posts have been created in WordPress. Check your Posts list to see them.'
+                                : 'This was a preview. No posts were created. Uncheck "Dry Run Mode" to create actual posts.';
+
+                            $('#test-run-message').text(message);
                             $('#test-run-results').fadeIn(200);
 
                             // If live mode and posts were created, offer to reload
