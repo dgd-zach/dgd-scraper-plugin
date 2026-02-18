@@ -56,6 +56,7 @@ class Scraper_Cron {
         $assoc_args = [
             'profile' => $profile_key,
             'live' => true,
+            'today-only' => true,
         ];
 
         try {

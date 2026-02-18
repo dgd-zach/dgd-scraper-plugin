@@ -62,6 +62,7 @@ class Generic_Scraper_Command {
         'errors' => 0
     ];
     private $is_dry_run = true; // Default to dry run
+    private $today_only = false; // When true, only import articles published today (used by cron)
 
     private function make_progress_bar($message, $count) {
         if (class_exists('WP_CLI\Utils') && method_exists('WP_CLI\Utils', 'make_progress_bar')) {
@@ -356,7 +357,8 @@ class Generic_Scraper_Command {
         // $this->is_dry_run = empty($assoc_args['live']);
         // $this->is_dry_run = !$this->get_flag_value($assoc_args, 'live', false);
         $this->is_dry_run = empty($assoc_args['live']);
-        
+        $this->today_only = !empty($assoc_args['today-only']);
+
         WP_CLI::line('');
         WP_CLI::line(WP_CLI::colorize('%G✓ Loaded profile: ' . $profile['profile_name'] . '%n'));
         WP_CLI::line('');
@@ -401,7 +403,8 @@ class Generic_Scraper_Command {
         // Dry run is default - must explicitly add --live flag to create posts
         // $this->is_dry_run = !WP_CLI\Utils::get_flag_value($assoc_args, 'live', false);
         $this->is_dry_run = empty($assoc_args['live']);
-        
+        $this->today_only = !empty($assoc_args['today-only']);
+
         // Validate post status
         if (!in_array($this->config['post_status'], ['publish', 'draft'])) {
             WP_CLI::error("Invalid status. Use 'publish' or 'draft'");
@@ -644,7 +647,18 @@ class Generic_Scraper_Command {
             $this->stats['skipped']++;
             return;
         }
-        
+
+        // Cron: only import articles published today
+        if ($this->today_only && !empty($data['date'])) {
+            $today = current_time('Y-m-d');
+            $article_date = substr($data['date'], 0, 10); // Extract Y-m-d from Y-m-d H:i:s
+            if ($article_date !== $today) {
+                WP_CLI::debug("Skipping (not published today): \"{$data['title']}\" (date: $article_date, today: $today)");
+                $this->stats['skipped']++;
+                return;
+            }
+        }
+
         // Create post
         $post_id = $this->create_post($data, $category_ids, $tag_ids);
         
@@ -1025,6 +1039,17 @@ class Generic_Scraper_Command {
             return $existing_attachment;
         }
         
+        // Ensure WordPress admin file functions are available (not loaded during WP-Cron)
+        if (!function_exists('download_url')) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+        }
+        if (!function_exists('wp_generate_attachment_metadata')) {
+            require_once ABSPATH . 'wp-admin/includes/image.php';
+        }
+        if (!function_exists('media_handle_sideload')) {
+            require_once ABSPATH . 'wp-admin/includes/media.php';
+        }
+
         // Download image
         $tmp_file = download_url($image_url);
         if (is_wp_error($tmp_file)) {
