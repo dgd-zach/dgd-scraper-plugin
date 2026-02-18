@@ -42,6 +42,9 @@ class Scraper_Cron {
      * It loads the scraper command and executes it.
      */
     public static function run_profile($profile_key) {
+        $start_time = microtime(true);
+        error_log("========== [CRON] DGD Scraper: Starting profile '{$profile_key}' ==========");
+
         // Load the WP-CLI shim to make WP_CLI functions available
         require_once GWS_PLUGIN_DIR . 'includes/wp-cli-shim.php';
 
@@ -63,8 +66,11 @@ class Scraper_Cron {
             // Execute the scraper
             $command->run($args, $assoc_args);
         } catch (Exception $e) {
-            error_log("Cron scraper error for profile '{$profile_key}': " . $e->getMessage());
+            error_log("[CRON] DGD Scraper ERROR for profile '{$profile_key}': " . $e->getMessage());
         }
+
+        $elapsed = round(microtime(true) - $start_time, 2);
+        error_log("========== [CRON] DGD Scraper: Finished profile '{$profile_key}' ({$elapsed}s) ==========");
     }
 
     /**

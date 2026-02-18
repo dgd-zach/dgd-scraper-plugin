@@ -187,14 +187,19 @@ class Generic_Scraper_Command {
                 break;
             }
             
+            $result = null;
             try {
-                $this->process_content($url, $category_ids, $tag_ids);
+                $result = $this->process_content($url, $category_ids, $tag_ids);
             } catch (Exception $e) {
                 WP_CLI::warning('Exception: ' . $e->getMessage());
                 $this->stats['errors']++;
             }
-            
-            $processed_count++;
+
+            // Content gate skips don't count toward the batch limit
+            // so the scraper keeps going to fill the requested batch size
+            if ($result !== 'gate_skipped') {
+                $processed_count++;
+            }
             $progress->tick();
             
             // Small delay to be respectful
@@ -319,6 +324,8 @@ class Generic_Scraper_Command {
             'categories' => $profile['categories'] ?? '',
             'tags' => $profile['tags'] ?? '',
             'page_param' => $profile['page_param'] ?? 'page',
+            'content_gate_xpath' => $profile['content_gate_xpath'] ?? '',
+            'content_gate_values' => [],
             'content_filter_mode' => $profile['content_filter_mode'] ?? 'exclude',
             'include_xpaths' => [],
             'remove_xpaths' => [],
@@ -337,7 +344,13 @@ class Generic_Scraper_Command {
             $remove_lines = explode("\n", $profile['remove_xpaths']);
             $this->config['remove_xpaths'] = array_filter(array_map('trim', $remove_lines));
         }
-        
+
+        // Parse content_gate_values from string (one per line) to array
+        if (!empty($profile['content_gate_values'])) {
+            $gate_lines = explode("\n", $profile['content_gate_values']);
+            $this->config['content_gate_values'] = array_filter(array_map('trim', $gate_lines));
+        }
+
         // Allow command-line overrides
         if (isset($assoc_args['start-page'])) {
             $this->config['start_page'] = max(1, intval($assoc_args['start-page']));
@@ -492,7 +505,7 @@ class Generic_Scraper_Command {
         $new_urls = [];
         $page = $start_page;
         $pages_checked = 0;
-        $max_pages_to_check = $max_pages * 3; // Safety limit to prevent infinite loops
+        $max_pages_to_check = $max_pages; // Never exceed the configured page limit
         
         while (count($new_urls) < $batch_limit && $pages_checked < $max_pages_to_check) {
             $page_url = $this->build_page_url($page);
@@ -512,12 +525,9 @@ class Generic_Scraper_Command {
                 break;
             }
             
-            // Filter out already-imported posts
+            // Filter out already-imported posts (collect all new URLs from this page
+            // so the processing loop has extras if the content gate filters some out)
             foreach ($page_urls as $url) {
-                if (count($new_urls) >= $batch_limit) {
-                    break;
-                }
-                
                 // Check if this URL has already been imported
                 if (!$this->post_exists_by_source_url($url)) {
                     $new_urls[] = $url;
@@ -628,8 +638,32 @@ class Generic_Scraper_Command {
             return;
         }
         
+        // Content gate: check if an element's text matches one of the allowed values
+        if (!empty($this->config['content_gate_xpath']) && !empty($this->config['content_gate_values'])) {
+            $gate_dom = new DOMDocument();
+            @$gate_dom->loadHTML('<?xml encoding="UTF-8">' . $html);
+            $gate_xpath = new DOMXPath($gate_dom);
+            $gate_nodes = @$gate_xpath->query($this->config['content_gate_xpath']);
+
+            if (!$gate_nodes || $gate_nodes->length === 0) {
+                WP_CLI::debug("Content gate: XPath matched no elements, skipping: $url");
+                $this->stats['skipped']++;
+                return 'gate_skipped';
+            }
+
+            $gate_text = trim($gate_nodes->item(0)->textContent);
+            $gate_values_lower = array_map('strtolower', $this->config['content_gate_values']);
+            if (!in_array(strtolower($gate_text), $gate_values_lower, true)) {
+                WP_CLI::debug("Content gate: \"$gate_text\" not in allowed values, skipping: $url");
+                $this->stats['skipped']++;
+                return 'gate_skipped';
+            }
+
+            WP_CLI::debug("Content gate passed: \"$gate_text\"");
+        }
+
         $data = $this->extract_content_data($html, $url);
-        
+
         if (!$data) {
             WP_CLI::warning('Failed to extract data from: ' . $url);
             $this->stats['errors']++;
@@ -884,10 +918,12 @@ class Generic_Scraper_Command {
         // Get current user ID (the user running the WP-CLI command)
         $current_user_id = get_current_user_id();
         
-        // If no user is set (shouldn't happen in WP-CLI context), fallback to admin
+        // If no user is set (e.g. during cron), fallback to admin and switch context
+        // so that wp_insert_post() sees unfiltered_html capability (preserves <style> tags)
         if (!$current_user_id) {
             $admin_users = get_users(['role' => 'administrator', 'number' => 1]);
             $current_user_id = !empty($admin_users) ? $admin_users[0]->ID : 1;
+            wp_set_current_user($current_user_id);
         }
         
         // Prepend custom CSS to content if configured

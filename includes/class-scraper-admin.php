@@ -1082,6 +1082,36 @@ class Web_Scraper_Admin_Settings {
                             </td>
                         </tr>
                          <tr>
+                            <th scope="row">
+                                <label for="content_gate_xpath">Content Gate XPath</label>
+                            </th>
+                            <td>
+                                <input type="text"
+                                       name="scraper_profiles[content_gate_xpath]"
+                                       id="content_gate_xpath"
+                                       value="<?php echo esc_attr($current_profile['content_gate_xpath'] ?? ''); ?>"
+                                       class="regular-text"
+                                       placeholder="//span[@class='release-type']">
+                                <p class="help-text">Optional: XPath to check before importing. If set, the element's text must match one of the allowed values below.</p>
+                            </td>
+                        </tr>
+                        <tr id="content-gate-values-row" style="<?php echo empty($current_profile['content_gate_xpath'] ?? '') ? 'display:none;' : ''; ?>">
+                            <th scope="row">
+                                <label for="content_gate_values">Allowed Values</label>
+                            </th>
+                            <td>
+                                <textarea
+                                       name="scraper_profiles[content_gate_values]"
+                                       id="content_gate_values"
+                                       rows="3"
+                                       class="large-text"
+                                       placeholder="Press Release
+Earnings Report
+Product Launch"><?php echo esc_textarea($current_profile['content_gate_values'] ?? ''); ?></textarea>
+                                <p class="help-text">One value per line. Article is skipped if the Content Gate XPath text doesn't exactly match any of these.</p>
+                            </td>
+                        </tr>
+                         <tr>
                             <th scope="row">Content Filter</th>
                             <td>
                                 <?php $filter_mode = $current_profile['content_filter_mode'] ?? 'exclude'; ?>
@@ -1663,6 +1693,15 @@ $x('//article//h1')
                 }
             });
 
+            // Show/hide Content Gate values when XPath field changes
+            $('#content_gate_xpath').on('input', function() {
+                if ($(this).val().trim() !== '') {
+                    $('#content-gate-values-row').show();
+                } else {
+                    $('#content-gate-values-row').hide();
+                }
+            });
+
             // Toggle taxonomy fields based on post type
             function toggleTaxonomyFields() {
                 var postType = $('#post_type').val();
@@ -2017,6 +2056,8 @@ $x('//article//h1')
             'date_xpath' => '',
             'excerpt_xpath' => '',
             'image_xpath' => '',
+            'content_gate_xpath' => '',
+            'content_gate_values' => '',
             'content_filter_mode' => 'exclude',
             'include_xpaths' => '',
             'remove_xpaths' => '',
@@ -2053,6 +2094,8 @@ $x('//article//h1')
             'date_xpath' => $this->sanitize_xpath($data['date_xpath'] ?? ''),
             'excerpt_xpath' => $this->sanitize_xpath($data['excerpt_xpath'] ?? ''),
             'image_xpath' => $this->sanitize_xpath($data['image_xpath'] ?? ''),
+            'content_gate_xpath' => $this->sanitize_xpath($data['content_gate_xpath'] ?? ''),
+            'content_gate_values' => $this->sanitize_xpaths_multiline($data['content_gate_values'] ?? ''),
             'content_filter_mode' => in_array($data['content_filter_mode'] ?? 'exclude', ['include', 'exclude']) ? $data['content_filter_mode'] : 'exclude',
             'include_xpaths' => $this->sanitize_include_xpaths($data['include_xpaths'] ?? ''),
             'remove_xpaths' => $this->sanitize_xpaths_multiline($data['remove_xpaths'] ?? ''),
