@@ -42,6 +42,14 @@ class Scraper_Cron {
      * It loads the scraper command and executes it.
      */
     public static function run_profile($profile_key) {
+        // Prevent concurrent execution of the same profile
+        $lock_key = "scraper_cron_lock_{$profile_key}";
+        if (get_transient($lock_key)) {
+            error_log("[CRON] DGD Scraper: Profile '{$profile_key}' is already running, skipping.");
+            return;
+        }
+        set_transient($lock_key, true, 900); // 15-minute lock
+
         $start_time = microtime(true);
         error_log("========== [CRON] DGD Scraper: Starting profile '{$profile_key}' ==========");
 
@@ -68,6 +76,9 @@ class Scraper_Cron {
         } catch (Exception $e) {
             error_log("[CRON] DGD Scraper ERROR for profile '{$profile_key}': " . $e->getMessage());
         }
+
+        // Release the execution lock
+        delete_transient($lock_key);
 
         $elapsed = round(microtime(true) - $start_time, 2);
         error_log("========== [CRON] DGD Scraper: Finished profile '{$profile_key}' ({$elapsed}s) ==========");
