@@ -1509,19 +1509,19 @@ class Generic_Scraper_Command {
         $response = wp_remote_get($url, $args);
         
         if (is_wp_error($response)) {
-            error_log('fetch_url WP_Error: ' . $response->get_error_message());
+            WP_CLI::debug('fetch_url WP_Error: ' . $response->get_error_message());
             return false;
         }
-        
+
         $code = wp_remote_retrieve_response_code($response);
-        error_log('fetch_url HTTP ' . $code . ' for: ' . substr($url, 0, 100));
-        
+        WP_CLI::debug('fetch_url HTTP ' . $code . ' for: ' . substr($url, 0, 100));
+
         if ($code !== 200) {
             return false;
         }
-        
+
         $body = wp_remote_retrieve_body($response);
-        error_log('fetch_url body length: ' . strlen($body));
+        WP_CLI::debug('fetch_url body length: ' . strlen($body));
         
         return $body;
     }
